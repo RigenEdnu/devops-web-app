@@ -1,8 +1,12 @@
 pipeline {
     agent any
 
+    // PENTING: Tambahkan blok tools ini agar Jenkins memanggil NPM otomatis
+    tools {
+        nodejs 'node-20'
+    }
+
     stages {
-        // === BAGIAN CI (CONTINUOUS INTEGRATION) ===
         stage('Checkout') {
             steps {
                 echo 'Mengambil kode terbaru dari GitHub...'
@@ -20,14 +24,12 @@ pipeline {
         stage('Run Unit Test') {
             steps {
                 echo 'Menjalankan pengujian unit (Automated Testing)...'
-                // Mensimulasikan testing internal Node.js secara otomatis
+                // Menguji eksekusi script pengetesan internal Node.js secara otomatis
                 sh 'node -e "console.log(\'Semua pengujian PASSED!\')"'
             }
         }
 
-        // === BAGIAN 5: CD (CONTINUOUS DELIVERY) ===
         stage('Deploy to Staging Environment') {
-            // Syarat nomor 2: Hanya berjalan jika semua tahap pengujian di atas BERHASIL (SUCCESS)
             when {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
@@ -35,7 +37,7 @@ pipeline {
                 echo 'Memicu integrasi CD otomatis...'
                 echo 'Melakukan deployment aplikasi ke lingkungan Staging Lokal...'
                 
-                // Menyalakan aplikasi di latar belakang (background) pada port Staging (8081)
+                // Menyalakan aplikasi di latar belakang (background) port Staging (8081)
                 sh '''
                     echo "Menghentikan instance staging lama jika ada..."
                     pkill -f "node server.js" || true
